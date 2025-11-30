@@ -1,0 +1,15 @@
+names:
+  0: none
+  1: nodule
+path: dataset
+train:
+- images/subset1
+- images/subset2
+- images/subset3
+- images/subset4
+- images/subset5
+- images/subset6
+- images/subset7
+- images/subset8
+- images/subset9
+val: images/subset0
