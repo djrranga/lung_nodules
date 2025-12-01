@@ -39,7 +39,6 @@ def load_itk_image(filename):
 
 
 def preprocess_ct(input_path, output_base_path):
-    # Modified: output_base_path is the base filename (no extension folder creation)
     np_vol, origin, spacing, sitk_img = load_itk_image(input_path)
     old_size = sitk_img.GetSize()
     old_spacing = sitk_img.GetSpacing()
@@ -91,7 +90,6 @@ def main(args):
     idx = args.index
     ct_path = ct_paths[idx]
 
-    # Preserve directory structure only; do not create CT-specific folder
     rel_parent = ct_path.relative_to(input_root).parent
     out_dir = output_root / rel_parent
     out_dir.mkdir(parents=True, exist_ok=True)
