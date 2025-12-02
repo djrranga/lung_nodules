@@ -149,7 +149,6 @@ def main(args):
     with open(args.filelist, "r") as f:
         ct_paths = [Path(line.strip()) for line in f.readlines()]
 
-    # Resolve index: use --index or SLURM_ARRAY_TASK_ID
     idx = args.index
     if idx is None:
         slurm_idx = os.environ.get("SLURM_ARRAY_TASK_ID")

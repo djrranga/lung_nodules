@@ -18,8 +18,8 @@ def main():
         lr0=0.001,
         momentum=0.937,
         weight_decay=0.0005,
-        batch=16,               # tune based on your GPU memory
-        device=0                # this GPU assigned by SLURM
+        batch=16,
+        device=0
     )
 
     print(f"Finished fold {fold}")

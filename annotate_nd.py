@@ -6,7 +6,7 @@ import argparse
 
 def annotate(uid, voxel_coords, diameter, dataset_root):
     file = glob.glob(f'{dataset_root}/images/subset*/{uid}*.npz')[0]
-    # Ensure corresponding labels directory exists
+
     labels_dir = Path(file).parent.as_posix().replace(f'{dataset_root}/images', f'{dataset_root}/labels')
     Path(labels_dir).mkdir(parents=True, exist_ok=True)
 
@@ -38,7 +38,7 @@ def annotate(uid, voxel_coords, diameter, dataset_root):
         f.write(f'1 {cx} {cy} {w} {h}\n')
 
 def ensure_label_subsets(dataset_root):
-    # Create dataset/labels/subset[0-9] if missing
+
     for i in range(10):
         Path(f"{dataset_root}/labels/subset{i}").mkdir(parents=True, exist_ok=True)
 
@@ -49,7 +49,7 @@ def main():
     parser.add_argument("--dataset", default="dataset", help="Root dataset directory (default: dataset)")
     args = parser.parse_args()
 
-    # Resolve index from SLURM if not provided
+
     idx = args.index
     if idx is None:
         slurm_idx = os.environ.get("SLURM_ARRAY_TASK_ID")
@@ -57,10 +57,9 @@ def main():
             raise SystemExit("Provide --index or SLURM_ARRAY_TASK_ID")
         idx = int(slurm_idx)
 
-    # Ensure labels subset directories exist
+
     ensure_label_subsets(args.dataset)
 
-    # Load CSV and pick row
     rows = []
     with open(args.csv, "r") as f:
         next(f)
