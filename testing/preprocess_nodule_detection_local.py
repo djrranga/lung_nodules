@@ -66,11 +66,10 @@ def preprocess_ct(input_path, output_base_path):
         out[i] = cv2.resize(im[i, :, :], (1024, 1024), interpolation=cv2.INTER_LINEAR)
 
     norm = normalize_planes(out.astype(np.float32))
+    # use OpenCV imwrite (faster than PIL per-slice)
     for i in range(norm.shape[0]):
-        pil_img = Image.fromarray((norm[i] * 255).astype(np.uint8))
-        pil_img = pil_img.convert("L")
         slice_path = output_base_path.parent / f"{output_base_path.name}.{i:03d}.png"
-        pil_img.save(slice_path)
+        cv2.imwrite(str(slice_path), (norm[i] * 255).astype(np.uint8))
     # NPZ path keeps full original name
     npz_path = output_base_path.parent / f"{output_base_path.name}.npz"
     np.savez(
@@ -114,6 +113,8 @@ def main(args):
     output_root = Path(args.output).resolve()
     output_root.mkdir(parents=True, exist_ok=True)
 
+    # run sequentially (parallelism removed to avoid crashes)
+
     # Allowed image file patterns for SimpleITK
     def is_image(p: Path):
         name = p.name.lower()
@@ -127,20 +128,23 @@ def main(args):
         )
 
     subsets = sorted([d for d in input_root.iterdir() if d.is_dir()])
-    max_per_subset = 10
     tasks = []
     for subset in subsets:
         files = sorted([f for f in subset.rglob("*") if is_image(f)])
         if not files:
             continue
-        tasks.extend(files[:max_per_subset])
+        tasks.extend(files)
 
     if not tasks:
         print("No files found.")
         return
 
+    # sequential execution across CTs to avoid parallelism-related crashes
     for ct_path in tqdm(tasks, desc="Processing CTs", unit="ct"):
-        result = _process_single(ct_path, input_root, output_root)
+        try:
+            result = _process_single(ct_path, input_root, output_root)
+        except Exception as e:
+            result = f"FAIL {ct_path} {e}"
         print(result)
 
 
